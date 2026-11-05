@@ -43,6 +43,29 @@ class ReleaseReadinessTest {
         assertTrue(info.icon != 0)
         assertNotNull(context.getDrawable(info.icon))
         assertNotNull(context.getDrawable(R.mipmap.ic_launcher_round))
+        // Inflate and draw the actual resource: API24 gradients and adaptive
+        // layers can resolve by ID yet still fail during native rendering.
+        val icon = context.getDrawable(info.icon)!!
+        val bitmap = android.graphics.Bitmap.createBitmap(192, 192, android.graphics.Bitmap.Config.ARGB_8888)
+        icon.setBounds(0, 0, 192, 192)
+        icon.draw(android.graphics.Canvas(bitmap))
+        assertTrue("Launcher icon renders an opaque center", android.graphics.Color.alpha(bitmap.getPixel(96, 96)) > 0)
+        context.openFileOutput("launcher-icon.png", Context.MODE_PRIVATE).use {
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+        }
+        bitmap.recycle()
+        // Prevent a pre-rounded/transparent image exposing a second backing tile
+        // inside the launcher's adaptive mask (the on-device padding regression).
+        val art = android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.oncue_launcher_art)
+        for (x in 0 until art.width) {
+            assertEquals(255, android.graphics.Color.alpha(art.getPixel(x, 0)))
+            assertEquals(255, android.graphics.Color.alpha(art.getPixel(x, art.height - 1)))
+        }
+        for (y in 0 until art.height) {
+            assertEquals(255, android.graphics.Color.alpha(art.getPixel(0, y)))
+            assertEquals(255, android.graphics.Color.alpha(art.getPixel(art.width - 1, y)))
+        }
+        art.recycle()
     }
 
     @Test fun renamedComponentsAreRegistered() {

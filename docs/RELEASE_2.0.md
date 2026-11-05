@@ -1,10 +1,14 @@
 # OnCue 2.0
 
-The updated 2.0 build uses version code 18 and application ID
+The updated 2.0 build uses version code 19 and application ID
 `io.github.mutebutton.oncue`. It retains the current OnCue signing certificate,
 so it installs over the previous version-code-17 OnCue build without resetting
 settings. Much older installs with a different certificate require reinstalling;
 see [signing reset](SIGNING_RESET.md).
+
+The launcher icon now uses the approved glass media-card artwork, filling the
+Android launcher mask without an inset backing. A rounded fallback serves
+Android 7, and the existing signing certificate supports normal APK updates.
 
 This update clarifies notification access and recommends unrestricted background
 battery usage for more reliable timestamps on all devices, with Samsung-specific
